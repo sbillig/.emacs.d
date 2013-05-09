@@ -1,0 +1,3 @@
+[submodule "external/tern"]
+	path = external/tern
+	url = git@github.com:kiwanami/tern.git
