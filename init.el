@@ -1,5 +1,6 @@
 (global-set-key (kbd "C-'") 'switch-to-buffer)
 (global-set-key (kbd "C-;") 'other-window)
+;; TODO: join-line
 
 (setq mouse-autoselect-window t)
 (setq mouse-drag-copy-region nil)
@@ -26,13 +27,13 @@
 ;;; Font
 (defun font-exists-p (n)
   (if (null (find-font (font-spec :name n)))
-	  nil t))
+      nil t))
 
 (let ((f "Inconsolata-10"))
   (when (font-exists-p f)
-	;; without the add-to-list here, emacsclients won't pick up the default font
-	(add-to-list 'default-frame-alist `(font . ,f))
-	(set-default-font f)))
+    ;; without the add-to-list here, emacsclients won't pick up the default font
+    (add-to-list 'default-frame-alist `(font . ,f))
+    (set-default-font f)))
 
 ;;; Packages
 (package-initialize)
@@ -43,20 +44,19 @@
 (require 'cl)
 
 (setq auto-installed-packages
-	  '(auto-complete
-		multiple-cursors
-		go-autocomplete
-		js3-mode
-		rainbow-mode
-		haskell-mode
-		))
+      '(auto-complete
+        multiple-cursors
+        go-autocomplete
+        js3-mode
+        rainbow-mode
+        haskell-mode
+        ))
 
 (unless (every 'package-installed-p auto-installed-packages)
   (package-refresh-contents)
-  (mapc (lambda (x) (if (not (package-installed-p x))
-						(package-install x)))
-		auto-installed-packages)
-)
+  (mapc (lambda (x) (unless (package-installed-p x)
+                      (package-install x)))
+        auto-installed-packages))
 
 (require 'auto-complete)
 (require 'auto-complete-config)
@@ -75,9 +75,14 @@
   ;; Kill the electric indent.
   '(progn
      (define-key go-mode-map "}" nil)
-	 (define-key go-mode-map ")" nil)
-	 (define-key go-mode-map "," nil)
-	 (define-key go-mode-map ":" nil)
-	 (define-key go-mode-map "=" nil)
-	 )
-  )
+     (define-key go-mode-map ")" nil)
+     (define-key go-mode-map "," nil)
+     (define-key go-mode-map ":" nil)
+     (define-key go-mode-map "=" nil)
+     ))
+
+(add-hook 'emacs-lisp-mode-hook
+          (lambda ()
+            (setq indent-tabs-mode nil)
+            (define-key emacs-lisp-mode-map
+              "\r" 'reindent-then-newline-and-indent)))
