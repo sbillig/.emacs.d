@@ -5,6 +5,9 @@
 (setq mouse-autoselect-window t)
 (setq mouse-drag-copy-region nil)
 (global-unset-key [mouse-2])
+(setq mouse-wheel-follow-mouse t)
+(setq mouse-wheel-progressive-speed nil)
+(setq mouse-wheel-scroll-amount '(2 ((shift) . 1)))
 
 (show-paren-mode t)
 (setq show-paren-delay 0.0)
@@ -80,6 +83,7 @@
         switch-window
         zencoding-mode
         web-mode
+        exec-path-from-shell
         ))
 
 (unless (every 'package-installed-p auto-installed-packages)
@@ -113,6 +117,11 @@
 
 (require 'powerline)
 (powerline-default-theme)
+
+;; Work around for 10.8's lack of non-admin-settable PATH for gui apps
+;; (~/.launchd.conf isn't supported, as of 10.8.3)
+(when (memq window-system '(mac ns))
+  (exec-path-from-shell-initialize))
 
 (require 'auto-complete)
 (require 'auto-complete-config)
