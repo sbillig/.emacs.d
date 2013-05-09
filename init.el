@@ -71,7 +71,7 @@
       '(auto-complete
         multiple-cursors
         go-autocomplete
-        js3-mode
+;        js3-mode
         rainbow-mode
         haskell-mode
         ack-and-a-half
@@ -127,6 +127,19 @@
 (require 'auto-complete-config)
 (ac-config-default)
 (setq ac-auto-show-menu 0.8)
+(setq ac-quick-help-delay 0.3)
+;; NOTE: cd ~/.emacs.d/external/tern && npm install
+(add-to-list 'load-path "~/.emacs.d/external/tern/emacs/")
+(autoload 'tern-mode "tern.el" nil t)
+(setq tern-ac-on-dot t)
+;(tern-ac-setup)
+;(add-to-list 'ac-modes 'js3-mode)
+;(add-to-list 'ac-modes 'js-mode)
+
+(add-hook 'js-mode-hook (lambda () (tern-mode t)))
+(let ((f (lambda () (tern-mode t))))
+  ;(add-hook 'js3-mode-hook 'f)
+  (add-hook 'js-mode-hook 'f))
 
 (projectile-global-mode)
 (require 'ack-and-a-half)
