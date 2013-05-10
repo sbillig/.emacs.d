@@ -13,8 +13,18 @@
 
 (column-number-mode)
 (line-number-mode)
+(setq fill-column 80)
 (tool-bar-mode -1)
 (setq default-tab-width 4)
+(defalias 'yes-or-no-p 'y-or-n-p)
+
+;; Reload changed files
+(global-auto-revert-mode 1)
+;; Delete selected region when inserting text
+(delete-selection-mode 1)
+
+;; Word navigation for camelCase
+(global-subword-mode 1)
 
 (add-hook 'before-save-hook 'delete-trailing-whitespace)
 
@@ -24,16 +34,19 @@
       kept-old-versions 2
       version-control t)
 
+(require 'saveplace)
+(setq-default save-place t)
+(setq save-place-file "~/.emacs.d/saved-places")
+
 ;;; Font
 (defun font-exists-p (n)
   (if (null (find-font (font-spec :name n)))
       nil t))
 
+;; TODO: find a font check that works for linux server/client and osx
 (let ((f "Inconsolata-10"))
-  (when (font-exists-p f)
-    ;; without the add-to-list here, emacsclients won't pick up the default font
-    (add-to-list 'default-frame-alist `(font . ,f))
-    (set-default-font f)))
+  (add-to-list 'default-frame-alist `(font . ,f))
+  (set-default-font f))
 
 ;;; Packages
 (package-initialize)
@@ -43,6 +56,9 @@
 
 (require 'cl)
 
+(require 'uniquify)
+(setq uniquify-buffer-name-style 'forward)
+
 (setq auto-installed-packages
       '(auto-complete
         multiple-cursors
@@ -50,6 +66,9 @@
         js3-mode
         rainbow-mode
         haskell-mode
+        ack-and-a-half
+        projectile
+        undo-tree
         ))
 
 (unless (every 'package-installed-p auto-installed-packages)
@@ -58,10 +77,21 @@
                       (package-install x)))
         auto-installed-packages))
 
+;; C-x u
+(require 'undo-tree)
+(global-undo-tree-mode 1)
+
 (require 'auto-complete)
 (require 'auto-complete-config)
 (ac-config-default)
 (setq ac-auto-show-menu 0.8)
+
+(projectile-global-mode)
+(require 'ack-and-a-half)
+(defalias 'ack 'ack-and-a-half)
+(defalias 'ack-same 'ack-and-a-half-same)
+(defalias 'ack-find-file 'ack-and-a-half-find-file)
+(defalias 'ack-find-file-same 'ack-and-a-half-find-file-same)
 
 (require 'multiple-cursors)
 (global-set-key (kbd "C->") 'mc/mark-next-like-this)
