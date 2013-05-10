@@ -74,6 +74,7 @@
         ack-and-a-half
         projectile
         undo-tree
+        powerline
         ))
 
 (unless (every 'package-installed-p auto-installed-packages)
@@ -85,6 +86,9 @@
 ;; C-x u
 (require 'undo-tree)
 (global-undo-tree-mode 1)
+
+(require 'powerline)
+(powerline-default-theme)
 
 (require 'auto-complete)
 (require 'auto-complete-config)
