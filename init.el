@@ -75,6 +75,11 @@
         projectile
         undo-tree
         powerline
+        browse-kill-ring
+        ace-jump-mode
+        switch-window
+        zencoding-mode
+        web-mode
         ))
 
 (unless (every 'package-installed-p auto-installed-packages)
@@ -86,6 +91,25 @@
 ;; C-x u
 (require 'undo-tree)
 (global-undo-tree-mode 1)
+
+;; M-y
+(require 'browse-kill-ring)
+(browse-kill-ring-default-keybindings)
+
+;; C-c SPC
+(require 'ace-jump-mode)
+(define-key global-map (kbd "C-c SPC") 'ace-jump-mode)
+
+;; C-x o
+(require 'switch-window)
+
+;; C-j
+(require 'zencoding-mode)
+(add-hook 'sgml-mode-hook 'zencoding-mode)
+
+;;
+(require 'web-mode)
+;(add-to-list 'auto-mode-alist '("\\.mustache\\'" . web-mode))
 
 (require 'powerline)
 (powerline-default-theme)
