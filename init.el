@@ -118,10 +118,22 @@
 (require 'powerline)
 (powerline-default-theme)
 
-;; Work around for 10.8's lack of non-admin-settable PATH for gui apps
-;; (~/.launchd.conf isn't supported, as of 10.8.3)
 (when (memq window-system '(mac ns))
-  (exec-path-from-shell-initialize))
+  ;; Work-around for 10.8's lack of non-admin-settable PATH for gui apps
+  ;; (~/.launchd.conf isn't supported, as of 10.8.3)
+  (exec-path-from-shell-initialize)
+  (global-set-key
+   (kbd "s-R")
+   (lambda ()
+     (interactive)
+     (ns-do-applescript
+      "tell application \"Chrome\"
+       set winref to a reference to (first window whose title does not start with \"Developer Tools - \")
+       set winref's index to 1
+       reload active tab of winref
+       activate
+       end tell"
+      ))))
 
 (require 'auto-complete)
 (require 'auto-complete-config)
