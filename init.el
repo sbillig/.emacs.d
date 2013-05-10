@@ -38,6 +38,11 @@
 (setq-default save-place t)
 (setq save-place-file "~/.emacs.d/saved-places")
 
+;;; Theme
+(add-to-list 'load-path "~/.emacs.d/external/")
+(require 'color-theme-tomorrow)
+(color-theme-tomorrow-night-eighties)
+
 ;;; Font
 (defun font-exists-p (n)
   (if (null (find-font (font-spec :name n)))
