@@ -18,6 +18,7 @@
 (line-number-mode)
 (setq fill-column 80)
 (tool-bar-mode -1)
+(scroll-bar-mode -1)
 (setq default-tab-width 4)
 (defalias 'yes-or-no-p 'y-or-n-p)
 
