@@ -133,6 +133,9 @@
        set winref's index to 1
        reload active tab of winref
        activate
+       end tell
+       tell application \"Emacs\"
+       activate
        end tell"
       ))))
 
