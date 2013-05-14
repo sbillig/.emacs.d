@@ -1,6 +1,8 @@
 (global-set-key (kbd "C-'") 'switch-to-buffer)
 (global-set-key (kbd "C-;") 'other-window)
-;; TODO: join-line
+(global-set-key (kbd "M-j") (lambda () (interactive) (join-line -1)))
+(global-set-key (kbd "M-n") 'forward-paragraph)
+(global-set-key (kbd "M-p") 'backward-paragraph)
 
 (setq mouse-autoselect-window t)
 (setq mouse-drag-copy-region nil)
