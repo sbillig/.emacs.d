@@ -73,6 +73,7 @@
 (setq auto-installed-packages
       '(auto-complete
         multiple-cursors
+        go-mode
         go-autocomplete
 ;        js3-mode
         rainbow-mode
