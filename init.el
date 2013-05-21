@@ -75,7 +75,6 @@
         multiple-cursors
         go-mode
         go-autocomplete
-;        js3-mode
         rainbow-mode
         haskell-mode
         ack-and-a-half
@@ -87,6 +86,9 @@
         switch-window
         zencoding-mode
         web-mode
+        js2-mode
+        skewer-mode
+        expand-region
         exec-path-from-shell
         ))
 
@@ -119,6 +121,10 @@
 (require 'web-mode)
 ;(add-to-list 'auto-mode-alist '("\\.mustache\\'" . web-mode))
 
+(require 'expand-region)
+(global-set-key (kbd "C-=") 'er/expand-region)
+(global-set-key (kbd "C--") 'er/contract-region)
+
 (require 'powerline)
 (powerline-default-theme)
 
@@ -150,16 +156,32 @@
 ;; NOTE: cd ~/.emacs.d/external/tern && npm install
 (add-to-list 'load-path "~/.emacs.d/external/tern/emacs/")
 (autoload 'tern-mode "tern.el" nil t)
-;(setq tern-ac-on-dot t)
-;(tern-ac-setup)
-;(add-to-list 'ac-modes 'js3-mode)
-;(add-to-list 'ac-modes 'js-mode)
+(eval-after-load 'tern
+  '(progn
+     (require 'tern-auto-complete)
+     (tern-ac-setup)
+     (setq tern-ac-on-dot t)))
 
-(add-hook 'js-mode-hook (lambda () (tern-mode t)))
+;(add-hook 'js-mode-hook (lambda () (tern-mode t)))
 
 ;(let ((f (lambda () (tern-mode t))))
   ;(add-hook 'js3-mode-hook 'f)
 ;  (add-hook 'js-mode-hook 'f))
+
+(require 'js2-mode)
+(add-hook 'js2-mode-hook
+          '(lambda ()
+             (setq js2-strict-trailing-comma-warning nil)
+             (setq js2-highlight-level 3)
+             (setq js2-basic-offset 2)
+             (setq js2-idle-timer-delay 0.4)
+             (setq indent-tabs-mode nil)
+             (setq default-tab-width 2)))
+
+(setq browse-url-browser-function 'browse-url-chromium)
+(require 'skewer-mode)
+
+
 
 (projectile-global-mode)
 (require 'ack-and-a-half)
