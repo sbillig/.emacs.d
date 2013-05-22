@@ -12,7 +12,7 @@
 (setq mouse-wheel-scroll-amount '(2 ((shift) . 1)))
 
 (show-paren-mode t)
-(setq show-paren-delay 0.0)
+(setq show-paren-delay 0.01)
 (setq show-paren-style 'parenthesis)
 (setq show-paren-highlight-openparen nil)
 
@@ -83,7 +83,6 @@
         powerline
         browse-kill-ring
         ace-jump-mode
-        switch-window
         zencoding-mode
         web-mode
         js2-mode
@@ -110,8 +109,9 @@
 (require 'ace-jump-mode)
 (define-key global-map (kbd "C-c SPC") 'ace-jump-mode)
 
-;; C-x o
-(require 'switch-window)
+;; Shift + arrows
+(when (fboundp 'windmove-default-keybindings)
+  (windmove-default-keybindings))
 
 ;; C-j
 (require 'zencoding-mode)
