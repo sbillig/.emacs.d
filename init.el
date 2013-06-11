@@ -127,10 +127,10 @@
 (require 'powerline)
 (powerline-default-theme)
 
+;; Set PATH
+(exec-path-from-shell-initialize)
+
 (when (memq window-system '(mac ns))
-  ;; Work-around for 10.8's lack of non-admin-settable PATH for gui apps
-  ;; (~/.launchd.conf isn't supported, as of 10.8.3)
-  (exec-path-from-shell-initialize)
   (global-set-key
    (kbd "s-R")
    (lambda ()
