@@ -276,6 +276,16 @@ names to which it refers are bound."
      (font-latex-verbatim-face ((,class (:foreground ,orange))))
      (font-latex-warning-face ((,class (:foreground ,red))))
 
+     ;; ansi-term
+     (term-color-black ((,class (:foreground ,background :background ,background))))
+     (term-color-red ((,class (:foreground ,red :background ,red))))
+     (term-color-green ((,class (:foreground ,green :background ,green))))
+     (term-color-yellow ((,class (:foreground ,yellow :background ,yellow))))
+     (term-color-blue ((,class (:foreground ,blue :background ,blue))))
+     (term-color-magenta ((,class (:foreground ,purple :background ,purple))))
+     (term-color-cyan ((,class (:foreground ,aqua :background ,aqua))))
+     (term-color-white ((,class (:foreground ,foreground :background ,foreground))))
+
      ;; dired+
      (diredp-compressed-file-suffix ((,class (:foreground ,blue))))
      (diredp-dir-heading ((,class (:foreground nil :background nil :inherit heading))))
