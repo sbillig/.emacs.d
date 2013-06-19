@@ -92,6 +92,7 @@
         rainbow-mode
         haskell-mode
         ack-and-a-half
+        helm
         projectile
         undo-tree
         powerline
@@ -197,6 +198,9 @@
 
 
 
+(require 'ido)
+(setq ido-enable-flex-matching t)
+(require 'projectile)
 (projectile-global-mode)
 (require 'ack-and-a-half)
 (defalias 'ack 'ack-and-a-half)
