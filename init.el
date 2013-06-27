@@ -100,10 +100,11 @@
         ace-jump-mode
         zencoding-mode
         web-mode
-        js2-mode
+        js3-mode
         skewer-mode
         expand-region
         exec-path-from-shell
+        smart-tabs-mode
         ))
 
 (unless (every 'package-installed-p auto-installed-packages)
@@ -165,6 +166,7 @@
 
 (require 'auto-complete)
 (require 'auto-complete-config)
+
 (ac-config-default)
 (setq ac-auto-show-menu 0.8)
 (setq ac-quick-help-delay 0.3)
@@ -177,26 +179,19 @@
      (tern-ac-setup)
      (setq tern-ac-on-dot t)))
 
-;(add-hook 'js-mode-hook (lambda () (tern-mode t)))
+(setq ac-modes '(emacs-lisp-mode lisp-mode lisp-interaction-mode go-mode))
 
-;(let ((f (lambda () (tern-mode t))))
-  ;(add-hook 'js3-mode-hook 'f)
-;  (add-hook 'js-mode-hook 'f))
-
-(require 'js2-mode)
-(add-hook 'js2-mode-hook
-          '(lambda ()
-             (setq js2-strict-trailing-comma-warning nil)
-             (setq js2-highlight-level 3)
-             (setq js2-basic-offset 2)
-             (setq js2-idle-timer-delay 0.4)
-             (setq indent-tabs-mode nil)
-             (setq default-tab-width 2)))
+(add-to-list 'auto-mode-alist '("\\.codex\\'" . js-mode))
+(add-hook 'js-mode-hook
+          (lambda ()
+            (setq indent-tabs-mode t)
+            (setq default-tab-width 4)
+            (smart-tabs-mode-enable)
+            (smart-tabs-advice js-indent-line js-indent-level)
+            ))
 
 (setq browse-url-browser-function 'browse-url-chromium)
 (require 'skewer-mode)
-
-
 
 (require 'ido)
 (setq ido-enable-flex-matching t)
@@ -231,3 +226,15 @@
             (setq indent-tabs-mode nil)
             (define-key emacs-lisp-mode-map
               "\r" 'reindent-then-newline-and-indent)))
+
+(custom-set-variables
+ '(ido-enable-flex-matching t)
+ '(js3-consistent-level-indent-inner-bracket t)
+ '(js3-enter-indents-newline t)
+ '(js3-global-externs '("require" "console"))
+ '(js3-idle-timer-delay 0.4)
+ '(js3-indent-on-enter-key t)
+ '(js3-pretty-vars nil)
+ '(js3-strict-trailing-comma-warning nil))
+(custom-set-faces
+ '(js3-external-variable-face ((t (:foreground "VioletRed2")))))
