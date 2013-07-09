@@ -209,8 +209,12 @@
 (global-set-key (kbd "C-c C-<") 'mc/mark-all-like-this)
 (global-set-key (kbd "C-S-c C-S-c") 'mc/edit-lines)
 
-(require 'go-autocomplete)
+(require 'haskell-mode)
+(add-hook 'haskell-mode-hook 'turn-on-haskell-doc-mode)
+(add-hook 'haskell-mode-hook 'turn-on-haskell-indent)
+(add-to-list 'auto-mode-alist '("\\.chs\\'" . haskell-c-mode))
 
+(require 'go-autocomplete)
 (eval-after-load "go-mode"
   ;; Kill the electric indent.
   '(progn
