@@ -105,6 +105,7 @@
         expand-region
         exec-path-from-shell
         smart-tabs-mode
+        buffer-move
         ))
 
 (unless (every 'package-installed-p auto-installed-packages)
@@ -128,6 +129,12 @@
 ;; Shift + arrows
 (when (fboundp 'windmove-default-keybindings)
   (windmove-default-keybindings))
+
+;; M-S + arrows
+(global-set-key (kbd "<M-S-up>")     'buf-move-up)
+(global-set-key (kbd "<M-S-down>")   'buf-move-down)
+(global-set-key (kbd "<M-S-left>")   'buf-move-left)
+(global-set-key (kbd "<M-S-right>")  'buf-move-right)
 
 ;; C-j
 (require 'zencoding-mode)
