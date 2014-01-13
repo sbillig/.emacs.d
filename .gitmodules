@@ -1,6 +1,11 @@
 [submodule "external/tern"]
 	path = external/tern
 	url = git@github.com:marijnh/tern.git
+
 [submodule "external/idris-mode"]
 	path = external/idris-mode
 	url = https://github.com/idris-hackers/idris-mode.git
+
+[submodule "external/auto-complete-clang-async"]
+	path = external/auto-complete-clang-async
+	url = https://github.com/Golevka/emacs-clang-complete-async.git
