@@ -296,12 +296,14 @@
 ;; (setq c++-mode-hook nil)
 (add-hook 'c++-mode-hook
           (lambda ()
+            (setq indent-tabs-mode nil)
             (dtrt-indent-mode)
             (flycheck-mode)
+            (setq flycheck-check-syntax-automatically '(mode-enabled new-line save))
             (setq flycheck-clang-language-standard "c++11")
             (setq flycheck-clang-standard-library "libc++")
             (setq flycheck-clang-include-path '("/usr/lib/c++/v1"
-                                                "/Users/seanbillig/code/modeler_new"))))
+                                                "/Users/seanbillig/code/modeler_new/external"))))
 
 (add-to-list 'auto-mode-alist '("\\.h\\'" . c++-mode))
 
