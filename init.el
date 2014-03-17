@@ -293,17 +293,29 @@
           (lambda ()
             (local-set-key (kbd "C-c o") 'ff-find-other-file)))
 
+;; (defconst my-cc-style
+;;   '("gnu"
+;;     (c-basic-offset . 2)
+;;     (c-offsets-alist . ((innamespace . [0])))))
+;; (c-add-style "my-cc-style" my-cc-style)
+
 ;; (setq c++-mode-hook nil)
 (add-hook 'c++-mode-hook
           (lambda ()
-            (setq indent-tabs-mode nil)
+            (setq c-basic-offset 2)
+            (c-set-offset 'innamespace 0)
+            (setq tab-width 2)
             (dtrt-indent-mode)
+            (setq indent-tabs-mode nil)
             (flycheck-mode)
             (setq flycheck-check-syntax-automatically '(mode-enabled new-line save))
             (setq flycheck-clang-language-standard "c++11")
             (setq flycheck-clang-standard-library "libc++")
             (setq flycheck-clang-include-path '("/usr/lib/c++/v1"
-                                                "/Users/seanbillig/code/modeler_new/external"))))
+                                                "/Users/seanbillig/code/modeler_new/external"
+                                                "/Users/seanbillig/code/core/dex/external"
+                                                "/Users/seanbillig/code/core/dex/build/release"
+                                                "/Users/seanbillig/code/core/dex/build/msgpack/include"))))
 
 (add-to-list 'auto-mode-alist '("\\.h\\'" . c++-mode))
 
@@ -312,6 +324,9 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(dtrt-indent-min-quality 40.0)
+ '(dtrt-indent-mode t nil (dtrt-indent))
+ '(dtrt-indent-verbosity 2)
  '(ido-enable-flex-matching t)
  '(js3-auto-indent-p t)
  '(js3-consistent-level-indent-inner-bracket nil)
