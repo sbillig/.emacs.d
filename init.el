@@ -287,7 +287,6 @@
             (define-key emacs-lisp-mode-map
               "\r" 'reindent-then-newline-and-indent)))
 
-(autoload 'dtrt-indent-mode "dtrt-indent" "" t)
 ;; (setq c-mode-common-hook nil)
 (add-hook 'c-mode-common-hook
           (lambda ()
@@ -305,7 +304,6 @@
             (setq c-basic-offset 2)
             (c-set-offset 'innamespace 0)
             (setq tab-width 2)
-            (dtrt-indent-mode)
             (setq indent-tabs-mode nil)
             (flycheck-mode)
             (setq flycheck-check-syntax-automatically '(mode-enabled new-line save))
