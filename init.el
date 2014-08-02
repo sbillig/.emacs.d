@@ -64,19 +64,24 @@
 (setq-default save-place t)
 (setq save-place-file "~/.emacs.d/saved-places")
 
-;;; Theme
-(add-to-list 'load-path "~/.emacs.d/external/")
-(require 'color-theme-tomorrow)
-(color-theme-tomorrow-night-eighties)
-
 ;;; Font
 (defun font-exists-p (n)
   (if (null (find-font (font-spec :name n)))
       nil t))
 ;; TODO: find a font check that works for linux server/client and osx
-(let ((f "Inconsolata-10"))
+(let ((f "Inconsolata-11"))
   (add-to-list 'default-frame-alist `(font . ,f))
   (set-default-font f))
+
+;;; Disable graphical dialog boxes
+(defadvice yes-or-no-p (around prevent-dialog activate)
+  "Prevent yes-or-no-p from activating a dialog"
+  (let ((use-dialog-box nil))
+    ad-do-it))
+(defadvice y-or-n-p (around prevent-dialog-yorn activate)
+  "Prevent y-or-n-p from activating a dialog"
+  (let ((use-dialog-box nil))
+    ad-do-it))
 
 ;;; Packages
 (package-initialize)
@@ -100,9 +105,11 @@
         helm
         projectile
         undo-tree
-        powerline
+        smart-mode-line
+        column-enforce-mode
         browse-kill-ring
         ace-jump-mode
+        key-chord
         zencoding-mode
         web-mode
         js3-mode
@@ -120,6 +127,15 @@
   (mapc (lambda (x) (unless (package-installed-p x)
                       (package-install x)))
         auto-installed-packages))
+
+;;; Theme
+(add-to-list 'load-path "~/.emacs.d/external/")
+(require 'color-theme)
+(require 'color-theme-tomorrow)
+;;; (color-theme-tomorrow-night-eighties)
+(color-theme-initialize)
+(color-theme-goldenrod)
+
 
 (require 'autopair)
 (autopair-global-mode 1)
@@ -159,13 +175,13 @@
 (global-set-key (kbd "C-=") 'er/expand-region)
 (global-set-key (kbd "C--") 'er/contract-region)
 
-(require 'powerline)
-(powerline-default-theme)
+(setq sml/theme 'dark)
+(sml/setup)
+(column-enforce-mode)
 
 (require 'julia-mode)
 
 (require 'flycheck)
-
 
 ;; Set PATH
 (exec-path-from-shell-initialize)
@@ -256,6 +272,36 @@
 (defalias 'ack-find-file 'ack-and-a-half-find-file)
 (defalias 'ack-find-file-same 'ack-and-a-half-find-file-same)
 
+(require 'key-chord)
+(key-chord-mode 1)
+(key-chord-define-global "xs" 'save-buffer)
+(key-chord-define-global "xk" 'kill-this-buffer)
+(key-chord-define-global "x0" 'delete-window)
+(key-chord-define-global "kk" 'kill-line)
+(key-chord-define-global "yk" 'yank)
+(key-chord-define-global "yk" 'yank)
+(key-chord-define-global "xf" 'find-file)
+(key-chord-define-global "xb" 'switch-to-buffer)
+;(key-chord-define-global "fg" 'keyboard-quit)
+(key-chord-define-global "df" 'delete-char)
+
+(key-chord-define-global "pf" 'projectile-find-file)
+(key-chord-define-global "pg" 'projectile-ack)
+(key-chord-define-global "jk" 'move-beginning-of-line)
+(key-chord-define-global "kl" 'move-end-of-line)
+(key-chord-define-global "9i" 'set-mark-command)
+(key-chord-define-global "0o" "\C-u\C-\ ")
+
+(key-chord-define-global "fc" 'flycheck-buffer)
+(key-chord-define-global "fn" 'flycheck-next-error)
+(key-chord-define-global "fm" 'flycheck-previous-error)
+(key-chord-define-global "cg" 'keyboard-quit)
+
+(add-hook 'after-init-hook #'global-flycheck-mode)
+
+;; (require 'space-chord)
+
+
 (require 'multiple-cursors)
 (global-set-key (kbd "C->") 'mc/mark-next-like-this)
 (global-set-key (kbd "C-<") 'mc/mark-previous-like-this)
@@ -305,15 +351,21 @@
             (c-set-offset 'innamespace 0)
             (setq tab-width 2)
             (setq indent-tabs-mode nil)
-            (flycheck-mode)
-            (setq flycheck-check-syntax-automatically '(mode-enabled new-line save))
-            (setq flycheck-clang-language-standard "c++11")
+            (setq flycheck-check-syntax-automatically
+                  '(mode-enabled new-line save))
+            (setq flycheck-clang-language-standard "c++1y")
             (setq flycheck-clang-standard-library "libc++")
-            (setq flycheck-clang-include-path '("/usr/lib/c++/v1"
-                                                "/Users/seanbillig/code/modeler_new/external"
-                                                "/Users/seanbillig/code/core/dex/external"
-                                                "/Users/seanbillig/code/core/dex/build/release"
-                                                "/Users/seanbillig/code/core/dex/build/msgpack/include"))))
+            (setq flycheck-clang-include-path
+                  '("/usr/lib/c++/v1"
+                    "/Users/seanbillig/local/include"
+                    "/Users/seanbillig/code/modeler_new/external"
+                    "/Users/seanbillig/code/core/dex/external"
+                    "/Users/seanbillig/code/core/newparser/external"
+                    "/Users/seanbillig/code/core/dex_newparser/external"
+                    "/Users/seanbillig/code/core/dex/OSX/deps"
+                    "/Users/seanbillig/code/core/dex/build/debug"
+                    "/Users/seanbillig/code/core/dex/build/msgpack/include"
+                    "/Users/seanbillig/code/core/spirit_x3/include"))))
 
 (add-to-list 'auto-mode-alist '("\\.h\\'" . c++-mode))
 
@@ -334,10 +386,13 @@
  '(js3-idle-timer-delay 0.4)
  '(js3-indent-on-enter-key t)
  '(js3-pretty-vars nil)
- '(js3-strict-trailing-comma-warning nil))
+ '(js3-strict-trailing-comma-warning nil)
+ '(sml/hidden-modes (quote (" hl-p" " Projectile[dex]" " Undo-Tree" " AC" " pair"))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(js3-external-variable-face ((t (:foreground "VioletRed2"))) t))
+(put 'downcase-region 'disabled nil)
+(put 'upcase-region 'disabled nil)
