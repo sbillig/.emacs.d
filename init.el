@@ -41,7 +41,7 @@
 (scroll-bar-mode -1)
 
 (setq indent-tabs-mode nil)
-(setq default-tab-width 2)
+(setq tab-width 2)
 (defalias 'yes-or-no-p 'y-or-n-p)
 
 ;; Reload changed files
@@ -239,16 +239,17 @@
 (add-to-list 'auto-mode-alist '("\\.codex\\'" . js-mode))
 (add-hook 'js-mode-hook
           (lambda ()
-            (setq indent-tabs-mode t)
-            (setq default-tab-width 4)
-            (smart-tabs-mode-enable)
-            (smart-tabs-advice js-indent-line js-indent-level)
+            (setq indent-tabs-mode nil)
+            (setq tab-width 2)
+            (setq js-indent-level 2)
+            ;; (smart-tabs-mode-enable)
+            ;; (smart-tabs-advice js-indent-line js-indent-level)
             ))
-
+;;(setq js-mode-hook nil)
 
 (add-hook 'julia-mode-hook
           (lambda ()
-            (setq default-tab-width 4)
+            (setq tab-width 4)
             (setq julia-basic-offset 4)
             ))
 
@@ -358,10 +359,13 @@
             (setq flycheck-clang-include-path
                   '("/usr/lib/c++/v1"
                     "/Users/seanbillig/local/include"
+                    "/Users/seanbillig/local/include/libxml2"
                     "/Users/seanbillig/code/modeler_new/external"
                     "/Users/seanbillig/code/core/dex/external"
                     "/Users/seanbillig/code/core/newparser/external"
+                    "/Users/seanbillig/code/core/dex_newparser/src"
                     "/Users/seanbillig/code/core/dex_newparser/external"
+                    "/Users/seanbillig/code/core/dex_newparser/build/debug"
                     "/Users/seanbillig/code/core/dex/OSX/deps"
                     "/Users/seanbillig/code/core/dex/build/debug"
                     "/Users/seanbillig/code/core/dex/build/msgpack/include"
