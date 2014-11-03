@@ -96,6 +96,8 @@
 (setq auto-installed-packages
       '(auto-complete
         autopair
+        color-theme-sanityinc-solarized
+        color-theme-sanityinc-tomorrow
         multiple-cursors
         go-mode
         go-autocomplete
@@ -104,6 +106,7 @@
         ack-and-a-half
         helm
         projectile
+	flycheck
         undo-tree
         smart-mode-line
         column-enforce-mode
@@ -128,14 +131,7 @@
                       (package-install x)))
         auto-installed-packages))
 
-;;; Theme
-(add-to-list 'load-path "~/.emacs.d/external/")
-(require 'color-theme)
-(require 'color-theme-tomorrow)
-;;; (color-theme-tomorrow-night-eighties)
-(color-theme-initialize)
-(color-theme-goldenrod)
-
+(load-theme 'sanityinc-tomorrow-eighties)
 
 (require 'autopair)
 (autopair-global-mode 1)
@@ -179,7 +175,7 @@
 (sml/setup)
 (column-enforce-mode)
 
-(require 'julia-mode)
+;(require 'julia-mode)
 
 (require 'flycheck)
 
@@ -378,6 +374,7 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(custom-safe-themes (quote ("628278136f88aa1a151bb2d6c8a86bf2b7631fbea5f0f76cba2a0079cd910f7d" default)))
  '(dtrt-indent-min-quality 40.0)
  '(dtrt-indent-mode t nil (dtrt-indent))
  '(dtrt-indent-verbosity 2)
@@ -391,7 +388,7 @@
  '(js3-indent-on-enter-key t)
  '(js3-pretty-vars nil)
  '(js3-strict-trailing-comma-warning nil)
- '(sml/hidden-modes (quote (" hl-p" " Projectile[dex]" " Undo-Tree" " AC" " pair"))))
+ '(rm-blacklist (quote (" hl-p" " Projectile[dex]" " Undo-Tree" " AC" " pair"))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
