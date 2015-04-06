@@ -276,7 +276,6 @@
 (key-chord-define-global "x0" 'delete-window)
 (key-chord-define-global "kk" 'kill-line)
 (key-chord-define-global "yk" 'yank)
-(key-chord-define-global "yk" 'yank)
 (key-chord-define-global "xf" 'find-file)
 (key-chord-define-global "xb" 'switch-to-buffer)
 ;(key-chord-define-global "fg" 'keyboard-quit)
