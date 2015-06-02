@@ -98,8 +98,7 @@
 (setq auto-installed-packages
       '(auto-complete
         autopair
-        color-theme-sanityinc-solarized
-        color-theme-sanityinc-tomorrow
+        solarized-theme
         multiple-cursors
         go-mode
         go-autocomplete
@@ -133,7 +132,7 @@
                       (package-install x)))
         auto-installed-packages))
 
-(load-theme 'sanityinc-tomorrow-eighties)
+(load-theme 'lush t)
 
 (require 'autopair)
 (autopair-global-mode 1)
@@ -150,6 +149,9 @@
 ;; C-c SPC
 (require 'ace-jump-mode)
 (define-key global-map (kbd "C-c SPC") 'ace-jump-mode)
+
+;; M-0 - M-9
+(window-numbering-mode)
 
 ;; Shift + arrows
 (when (fboundp 'windmove-default-keybindings)
@@ -173,6 +175,7 @@
 (global-set-key (kbd "C-=") 'er/expand-region)
 (global-set-key (kbd "C--") 'er/contract-region)
 
+(setq sml/no-confirm-load-theme t)
 (setq sml/theme 'dark)
 (sml/setup)
 (column-enforce-mode)
@@ -253,9 +256,9 @@
 
 (add-hook 'python-mode-hook
           (lambda ()
-            (setq python-indent 2)
+            (setq python-indent 4)
             (setq indent-tabs-mode nil)
-            (setq tab-width 2)))
+            (setq tab-width 4)))
 ;; (setq python-mode-hook nil)
 
 (setq browse-url-browser-function 'browse-url-chromium)
@@ -353,22 +356,7 @@
                   '(mode-enabled new-line save))
             (setq flycheck-clang-language-standard "c++1y")
             (setq flycheck-clang-standard-library "libc++")
-            (setq flycheck-clang-include-path
-                  '("/usr/lib/c++/v1"
-                    "/Users/seanbillig/local/include"
-                    "/Users/seanbillig/local/include/libxml2"
-                    "/Users/seanbillig/code/modeler_new/external"
-                    "/Users/seanbillig/code/core/dex/src"
-                    "/Users/seanbillig/code/core/dex/external"
-                    "/Users/seanbillig/code/core/modelparser/external"
-                    "/Users/seanbillig/code/core/newparser/external"
-                    "/Users/seanbillig/code/core/dex_newparser/src"
-                    "/Users/seanbillig/code/core/dex_newparser/external"
-                    "/Users/seanbillig/code/core/dex_newparser/build/debug"
-                    "/Users/seanbillig/code/core/dex/OSX/deps"
-                    "/Users/seanbillig/code/core/dex/build/debug"
-                    "/Users/seanbillig/code/core/dex/build/msgpack/include"
-                    "/Users/seanbillig/code/core/spirit_x3/include"))))
+            ))
 
 (add-to-list 'auto-mode-alist '("\\.h\\'" . c++-mode))
 
@@ -377,14 +365,11 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
-'(custom-safe-themes (quote ("628278136f88aa1a151bb2d6c8a86bf2b7631fbea5f0f76cba2a0079cd910f7d"
-                             "bb08c73af94ee74453c90422485b29e5643b73b05e8de029a6909af6a3fb3f58"
-                             "1e7e097ec8cb1f8c3a912d7e1e0331caeed49fef6cff220be63bd2a6ba4cc365"
-                             default)))
+ '(custom-safe-themes (quote ("628278136f88aa1a151bb2d6c8a86bf2b7631fbea5f0f76cba2a0079cd910f7d" "6a37be365d1d95fad2f4d185e51928c789ef7a4ccf17e7ca13ad63a8bf5b922f" default)))
  '(dtrt-indent-min-quality 40.0)
  '(dtrt-indent-mode t nil (dtrt-indent))
  '(dtrt-indent-verbosity 2)
- '(flycheck-check-syntax-automatically (quote (new-line mode-enabled save)))
+ '(flycheck-clang-include-path (list (expand-file-name "~/code/core/dex/external") (expand-file-name "~/local/include") (expand-file-name "~/local/include/libxml2") (expand-file-name "~/code/modeler_new/external") (expand-file-name "~/code/core/dex/external") (expand-file-name "~/code/core/newparser/external") (expand-file-name "~/code/core/dex_newparser/src") (expand-file-name "~/code/core/dex_newparser/external") (expand-file-name "~/code/core/dex_newparser/build/debug") (expand-file-name "~/code/core/dex/OSX/deps") (expand-file-name "~/code/core/dex/build/debug") (expand-file-name "~/code/core/dex/build/msgpack/include")))
  '(ido-enable-flex-matching t)
  '(js3-auto-indent-p t)
  '(js3-consistent-level-indent-inner-bracket nil)
@@ -393,14 +378,16 @@
  '(js3-global-externs (quote ("require" "console")))
  '(js3-idle-timer-delay 0.4)
  '(js3-indent-on-enter-key t)
+ '(js3-missing-semi-one-line-override t)
  '(js3-pretty-vars nil)
  '(js3-strict-trailing-comma-warning nil)
- '(rm-blacklist (quote (" hl-p" " Projectile[dex]" " Undo-Tree" " AC" " pair"))))
+ '(sml/hidden-modes (quote (" hl-p" " Projectile[dex]" " Undo-Tree" " AC" " pair"))))
+
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(js3-external-variable-face ((t (:foreground "VioletRed2"))) t))
+ '(js3-external-variable-face ((t (:foreground "VioletRed2")))))
 (put 'downcase-region 'disabled nil)
 (put 'upcase-region 'disabled nil)
