@@ -98,7 +98,6 @@
 (setq auto-installed-packages
       '(auto-complete
         autopair
-        solarized-theme
         multiple-cursors
         go-mode
         go-autocomplete
@@ -106,6 +105,7 @@
         haskell-mode
         ack-and-a-half
         helm
+	lush-theme
         projectile
 	flycheck
         undo-tree
@@ -113,6 +113,7 @@
         column-enforce-mode
         browse-kill-ring
         ace-jump-mode
+	window-numbering
         key-chord
         zencoding-mode
         web-mode
@@ -224,6 +225,7 @@
 
 (setq ac-modes '(emacs-lisp-mode lisp-mode lisp-interaction-mode go-mode))
 
+(setenv "GOPATH" (expand-file-name "~/code/go"))
 ;; (add-to-list 'load-path "~/.emacs.d/external/auto-complete-clang-async")
 ;; (require 'auto-complete-clang-async)
 ;; (defun ac-cc-mode-setup ()
@@ -369,7 +371,19 @@
  '(dtrt-indent-min-quality 40.0)
  '(dtrt-indent-mode t nil (dtrt-indent))
  '(dtrt-indent-verbosity 2)
- '(flycheck-clang-include-path (list (expand-file-name "~/code/core/dex/external") (expand-file-name "~/local/include") (expand-file-name "~/local/include/libxml2") (expand-file-name "~/code/modeler_new/external") (expand-file-name "~/code/core/dex/external") (expand-file-name "~/code/core/newparser/external") (expand-file-name "~/code/core/dex_newparser/src") (expand-file-name "~/code/core/dex_newparser/external") (expand-file-name "~/code/core/dex_newparser/build/debug") (expand-file-name "~/code/core/dex/OSX/deps") (expand-file-name "~/code/core/dex/build/debug") (expand-file-name "~/code/core/dex/build/msgpack/include")))
+ '(flycheck-clang-include-path
+   (list
+    (expand-file-name "~/local/include")
+    (expand-file-name "~/local/include/libxml2")
+    (expand-file-name "~/code/modeler_new/external")
+    (expand-file-name "~/code/core/dex/external")
+    (expand-file-name "~/code/core/dex/src")
+    (expand-file-name "~/code/core/dex/external")
+    (expand-file-name "~/code/core/dex/build/debug")
+    (expand-file-name "~/code/core/dex/OSX/deps")
+    (expand-file-name "~/code/core/dex/build/debug")
+    (expand-file-name "~/code/core/dex/build/msgpack/include")
+    ))
  '(ido-enable-flex-matching t)
  '(js3-auto-indent-p t)
  '(js3-consistent-level-indent-inner-bracket nil)
@@ -381,7 +395,8 @@
  '(js3-missing-semi-one-line-override t)
  '(js3-pretty-vars nil)
  '(js3-strict-trailing-comma-warning nil)
- '(sml/hidden-modes (quote (" hl-p" " Projectile[dex]" " Undo-Tree" " AC" " pair"))))
+ '(sml/hidden-modes (quote (" hl-p" " Projectile[dex]" " Undo-Tree" " AC" " pair")))
+ '(terraform-indent-level 2))
 
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
