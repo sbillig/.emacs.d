@@ -79,7 +79,7 @@
 ;;; Packages
 (package-initialize)
 (setq package-enable-at-startup nil)
-(add-to-list 'package-archives '("melpa" . "http://melpa.milkbox.net/packages/"))
+(add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/") t)
 
 (require 'cl)
 
@@ -87,14 +87,13 @@
 (setq uniquify-buffer-name-style 'forward)
 
 (setq auto-installed-packages
-      '(auto-complete
-        autopair
+      '(autopair
         company
         keyfreq
+        magit
         multiple-cursors
         rainbow-mode
         haskell-mode
-        ack-and-a-half
         helm
         helm-ag
         helm-ls-git
@@ -291,12 +290,6 @@
 (define-key helm-map (kbd "<tab>") 'helm-execute-persistent-action)
 (define-key helm-map (kbd "C-i") 'helm-execute-persistent-action) ; make TAB work in terminal
 (define-key helm-map (kbd "C-z")  'helm-select-action)
-
-(require 'ack-and-a-half)
-(defalias 'ack 'ack-and-a-half)
-(defalias 'ack-same 'ack-and-a-half-same)
-(defalias 'ack-find-file 'ack-and-a-half-find-file)
-(defalias 'ack-find-file-same 'ack-and-a-half-find-file-same)
 
 (setq shackle-rules '(("\\`\\*helm.*?\\*\\'" :regexp t :align t :ratio 0.4)))
 
