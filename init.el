@@ -9,6 +9,9 @@
 
 (set-default 'truncate-lines t)
 
+(add-to-list 'default-frame-alist '(height . 100))
+(add-to-list 'default-frame-alist '(width . 120))
+
 (setq visible-bell nil)
 (setq indent-tabs-mode nil)
 (setq mouse-autoselect-window t)
@@ -19,6 +22,7 @@
 (setq mouse-wheel-scroll-amount '(2 ((shift) . 1)))
 
 (show-paren-mode t)
+
 (setq show-paren-delay 0.01)
 (setq show-paren-style 'parenthesis)
 (setq show-paren-highlight-openparen nil)
@@ -78,11 +82,11 @@
 
 ;;; Disable graphical dialog boxes
 (defadvice yes-or-no-p (around prevent-dialog activate)
-  "Prevent yes-or-no-p from activating a dialog"
+  "Prevent 'yes-or-no-p' from activating a dialog."
   (let ((use-dialog-box nil))
     ad-do-it))
 (defadvice y-or-n-p (around prevent-dialog-yorn activate)
-  "Prevent y-or-n-p from activating a dialog"
+  "Prevent 'y-or-n-p' from activating a dialog."
   (let ((use-dialog-box nil))
     ad-do-it))
 
@@ -98,50 +102,48 @@
 (require 'uniquify)
 (setq uniquify-buffer-name-style 'forward)
 
-(setq auto-installed-packages
-      '(ag
-        autopair
-        company
-        keyfreq
-        magit
-        multiple-cursors
-        rainbow-mode
-        haskell-mode
-        helm
-        helm-ag
-        helm-ls-git
-        helm-make
-        helm-projectile
-        helm-swoop
-        phi-search
-        shackle
-        lush-theme
-        projectile
-        flycheck
-        undo-tree
-        smart-mode-line
-        column-enforce-mode
-        browse-kill-ring
-        ace-jump-mode
-        window-numbering
-        key-chord
-        zencoding-mode
-        web-mode
-        skewer-mode
-        expand-region
-        exec-path-from-shell
-        smart-tabs-mode
-        buffer-move
-        dtrt-indent
-        yaml-mode
-        rtags
-        ))
-
-(unless (every 'package-installed-p auto-installed-packages)
-  (package-refresh-contents)
-  (mapc (lambda (x) (unless (package-installed-p x)
-                      (package-install x)))
-        auto-installed-packages))
+(let ((auto-installed-packages
+       '(autopair
+         company
+         keyfreq
+         magit
+         multiple-cursors
+         rainbow-mode
+         haskell-mode
+         helm
+         helm-ag
+         helm-ls-git
+         helm-make
+         helm-projectile
+         helm-swoop
+         phi-search
+         shackle
+         lush-theme
+         projectile
+         flycheck
+         undo-tree
+         smart-mode-line
+         column-enforce-mode
+         browse-kill-ring
+         ace-jump-mode
+         window-numbering
+         key-chord
+         zencoding-mode
+         web-mode
+         skewer-mode
+         expand-region
+         exec-path-from-shell
+         smart-tabs-mode
+         buffer-move
+         dtrt-indent
+         yaml-mode
+         rtags
+         )))
+  (unless (every 'package-installed-p auto-installed-packages)
+    (package-refresh-contents)
+    (mapc (lambda (x) (unless (package-installed-p x)
+                        (package-install x)))
+          auto-installed-packages)))
 
 ;; (load-theme 'lush t)
 
@@ -225,12 +227,6 @@
 ;; Fix Shift-Up on iTerm2
 (global-set-key (kbd "<select>") 'windmove-up)
 
-(ac-config-default)
-(setq ac-auto-show-menu 0.8)
-(setq ac-quick-help-delay 0.3)
-
-(setq ac-modes '(emacs-lisp-mode lisp-mode lisp-interaction-mode))
-
 (add-to-list 'auto-mode-alist '("\\.jsx$" . jsx-mode))
 (require 'dtrt-indent)
 (dtrt-indent-mode 1)
@@ -248,6 +244,7 @@
             ;; (smart-tabs-advice js-indent-line js-indent-level)
             ))
 ;;(setq js-mode-hook nil)
+
 
 (add-hook 'jsx-mode-hook
           (lambda ()
@@ -354,24 +351,6 @@
             (define-key emacs-lisp-mode-map
               "\r" 'reindent-then-newline-and-indent)))
 
-;; (setq c-mode-common-hook nil)
-(add-hook 'c-mode-common-hook
-          (lambda ()
-            (local-set-key (kbd "C-c o") 'ff-find-other-file)))
-
-;; (defconst my-cc-style
-;;   '("gnu"
-;;     (c-basic-offset . 2)
-;;     (c-offsets-alist . ((innamespace . [0])))))
-;; (c-add-style "my-cc-style" my-cc-style)
-
-
-
-;; (setq-default flycheck-c/c++-clang-executable (expand-file-name "~/local/bin/clang"))
-(setq-default flycheck-clang-standard-library "libc++")
-(setq-default flycheck-clang-language-standard "c++1z")
-(setq-default flycheck-check-syntax-automatically '(mode-enabled new-line save))
-
 (rtags-enable-standard-keybindings)
 ;; (setq rtags-autostart-diagnostics t)
 ;; (setq rtags-completions-enabled t)
@@ -380,16 +359,27 @@
 (push 'company-rtags company-backends)
 (define-key c-mode-base-map (kbd "<C-tab>") (function company-complete))
 
-;; (setq c++-mode-hook nil)
-(add-hook 'c++-mode-hook
+(require 'flycheck-rtags)
+
+;; (setq c-mode-common-hook nil)
+(add-hook 'c-mode-common-hook
           (lambda ()
+            (local-set-key (kbd "C-c o") 'ff-find-other-file)
             (setq c-basic-offset 2)
             (c-set-offset 'innamespace 0)
             (setq tab-width 2)
             (setq indent-tabs-mode nil)
+
+            (flycheck-select-checker 'rtags)
+            (setq-local flycheck-highlighting-mode nil)
+            (setq-local flycheck-check-syntax-automatically nil)
+
+            (setq rtags-autostart-diagnostics t)
+            (rtags-diagnostics)
+            (setq rtags-completions-enabled t)
+            (define-key c-mode-base-map (kbd "<C-tab>") (function company-complete))
             ;; (rtags-start-process-unless-running)
             ))
-
 
 (add-to-list 'auto-mode-alist '("\\.h\\'" . c++-mode))
 
