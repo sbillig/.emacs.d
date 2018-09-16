@@ -1,16 +1,72 @@
-(defun comment-or-uncomment-region-or-line ()
-  (interactive)
-  (let (beg end)
-    (if (region-active-p)
-        (setq beg (region-beginning) end (region-end))
-      (setq beg (line-beginning-position) end (line-end-position)))
-    (comment-or-uncomment-region beg end)
-    (next-line)))
 
+(setq initial-scratch-message nil)
+(setq inhibit-startup-screen t)
 
+(setq
+ font-lock-support-mode 'jit-lock-mode
+ jit-lock-chunk-size   5000
+ jit-lock-stealth-time 0.1
+ jit-lock-defer-time   0.1
+ jit-lock-context-time 0.1)
+
+(setq gc-cons-threshold 10000000) ;;; default 800,000
+
+;;; Packages
+(package-initialize)
+(setq package-enable-at-startup nil)
+(add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
+
+;; (unless (package-installed-p 'use-package)
+;;   (package-refresh-contents)
+;;   (package-install 'use-package))
+
+(eval-when-compile
+  (require 'use-package))
+
+(setq use-package-always-ensure t)
+
+;; (use-package auto-package-update
+;;   :config
+;;   (setq auto-package-update-delete-old-versions t)
+;;   (setq auto-package-update-hide-results t)
+;;   (auto-package-update-maybe))
+
+(use-package use-package-chords
+  :ensure t
+  :config
+  (key-chord-mode 1))
+
+(setq key-chord-two-keys-delay .05 ;; default: 0.1
+      key-chord-one-key-delay .075) ;; default: 0.2
+
+(use-package dashboard
+  :config
+  (setq dashboard-banner-logo-title "")
+  (setq dashboard-items '((recents  . 5)
+                          (bookmarks . 5)
+                          (projects . 5)
+                          ;; (agenda . 5)
+                          (registers . 5)))
+  ;; (dashboard-setup-startup-hook)
+)
+
+(use-package which-key
+  :config (which-key-mode))
+
+;; (use-package hl-todo-mode
+;;   :config
+;;   :bind (:map hl-todo-mode-map
+;;               ("C-c p" . hl-todo-previous)
+;;               ("C-c n" . hl-todo-next)
+;;               ("C-c o" . hl-todo-occur)))
+
+(set-default 'truncate-lines t)
 
 (add-to-list 'default-frame-alist '(height . 100))
 (add-to-list 'default-frame-alist '(width . 120))
+
+(add-to-list 'default-frame-alist '(ns-transparent-titlebar . t))
+(add-to-list 'default-frame-alist '(ns-appearance . dark))
 
 (setq visible-bell nil)
 (setq indent-tabs-mode nil)
@@ -22,7 +78,6 @@
 (setq mouse-wheel-scroll-amount '(2 ((shift) . 1)))
 
 (show-paren-mode t)
-
 (setq show-paren-delay 0.01)
 (setq show-paren-style 'parenthesis)
 (setq show-paren-highlight-openparen nil)
@@ -55,8 +110,7 @@
       kept-old-versions 2
       version-control t)
 
-(require 'saveplace)
-(setq-default save-place t)
+(save-place-mode 1)
 (setq save-place-file "~/.emacs.d/saved-places")
 
 ;;; Font
@@ -64,7 +118,10 @@
   (if (null (find-font (font-spec :name n)))
       nil t))
 ;; TODO: find a font check that works for linux server/client and osx
-(let ((f "Inconsolata-11"))
+
+(let ((f (if (> (display-pixel-height) 2000)
+             "Fira Code-13:weight=light"
+           "Fira Code-10:weight=light")))
   (add-to-list 'default-frame-alist `(font . ,f))
   (set-default-font f))
 
@@ -78,87 +135,60 @@
   (let ((use-dialog-box nil))
     ad-do-it))
 
-(setq rcirc-default-nick "sbillig")
+;; (let ((auto-installed-packages
+;;        '(autopair
+;;          browse-kill-ring
+;;          zencoding-mode
+;;          skewer-mode
+;;          buffer-move
+;;          )))
+;;   (unless (every 'package-installed-p auto-installed-packages)
+;;     (package-refresh-contents)
+;;     (mapc (lambda (x) (unless (package-installed-p x)
+;;                         (package-install x)))
+;;           auto-installed-packages)))
 
-;;; Packages
-(package-initialize)
-(setq package-enable-at-startup nil)
-(add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/") t)
 
-(require 'cl)
+(use-package magit)
+(use-package git-timemachine)
 
-(require 'uniquify)
-(setq uniquify-buffer-name-style 'forward)
+;; http://peach-melpa.org/ -- theme gallery
+(use-package darktooth-theme :config (load-theme 'darktooth t))
+(global-hl-line-mode +1)
+;; (use-package paper-theme :config (load-theme 'paper t))
 
-(let ((auto-installed-packages
-       '(autopair
-         company
-         keyfreq
-         magit
-         multiple-cursors
-         rainbow-mode
-         haskell-mode
-         helm
-         helm-ag
-         helm-ls-git
-         helm-make
-         helm-projectile
-         helm-swoop
-         phi-search
-         shackle
-         lush-theme
-         projectile
-         flycheck
-         undo-tree
-         smart-mode-line
-         column-enforce-mode
-         browse-kill-ring
-         ace-jump-mode
-         window-numbering
-         key-chord
-         zencoding-mode
-         web-mode
-         skewer-mode
-         expand-region
-         exec-path-from-shell
-         smart-tabs-mode
-         buffer-move
-         dtrt-indent
-         yaml-mode
-         rtags
-         )))
-  (unless (every 'package-installed-p auto-installed-packages)
-    (package-refresh-contents)
-    (mapc (lambda (x) (unless (package-installed-p x)
-                        (package-install x)))
-          auto-installed-packages)))
+(use-package smartparens
+  :config (require 'smartparens-config))
 
-(load-theme 'lush t)
+(use-package goto-chg
+  :bind (("C-." . goto-last-change)
+         ("C-," . goto-last-change-reverse)))
 
-(require 'helm-config)
-
-(require 'keyfreq)
-(keyfreq-mode 1)
-(keyfreq-autosave-mode 1)
-
-(require 'autopair)
-(autopair-global-mode 1)
-(setq autopair-autowrap t)
+(use-package move-text
+  :config (move-text-default-bindings))
 
 ;; C-x u
-(require 'undo-tree)
-(global-undo-tree-mode 1)
+(use-package undo-tree
+  :config (global-undo-tree-mode 1))
+
+(use-package volatile-highlights
+  :config
+  (volatile-highlights-mode t)
+  (vhl/define-extension 'undo-tree 'undo-tree-yank 'undo-tree-move)
+  (vhl/install-extension 'undo-tree))
+
 
 ;; M-y
-(require 'browse-kill-ring)
-(browse-kill-ring-default-keybindings)
+(use-package browse-kill-ring
+  :config (browse-kill-ring-default-keybindings))
 
 ;; M-t
-(require 'ace-jump-mode)
-(define-key global-map (kbd "M-t") 'ace-jump-mode)
+(use-package ace-jump-mode
+  :bind (("M-t" . ace-jump-mode)))
 
 ;; M-0 - M-9
-(window-numbering-mode)
+(use-package window-numbering
+  :config (window-numbering-mode))
 
 ;; Shift + arrows
 (when (fboundp 'windmove-default-keybindings)
@@ -170,52 +200,43 @@
 (global-set-key (kbd "<M-S-left>")   'buf-move-left)
 (global-set-key (kbd "<M-S-right>")  'buf-move-right)
 
-;; C-j
-(require 'zencoding-mode)
-(add-hook 'sgml-mode-hook 'zencoding-mode)
+(add-hook 'js-mode-hook
+          (lambda ()
+	    (define-key makefile-mode-map (kbd "M-n") nil)
+	    (define-key makefile-mode-map (kbd "M-p") nil)
+	    ))
 
-;;
-(require 'web-mode)
-;(add-to-list 'auto-mode-alist '("\\.mustache\\'" . web-mode))
+(use-package expand-region
+  :bind (("C-=" . er/expand-region)
+         ("C--" . er/contract-region)))
 
-(require 'expand-region)
-(global-set-key (kbd "C-=") 'er/expand-region)
-(global-set-key (kbd "C--") 'er/contract-region)
+(use-package string-inflection
+  :bind (("C-c u" . string-inflection-underscore)))
 
-(setq sml/no-confirm-load-theme t)
-(setq sml/theme 'dark)
-(sml/setup)
-(column-enforce-mode)
+(use-package smart-mode-line
+  :config (setq sml/no-confirm-load-theme t)
+          (setq sml/theme 'respectful)
+          (sml/setup))
 
-;(require 'julia-mode)
-
-(require 'flycheck)
+;; (column-enforce-mode)
 
 ;; Set PATH
-(exec-path-from-shell-initialize)
+(use-package exec-path-from-shell
+  :config (exec-path-from-shell-initialize))
 
 ;; Fix Shift-Up on iTerm2
 (global-set-key (kbd "<select>") 'windmove-up)
 
-(add-to-list 'auto-mode-alist '("\\.jsx$" . jsx-mode))
-(require 'dtrt-indent)
-(dtrt-indent-mode 1)
-(add-to-list 'dtrt-indent-hook-mapping-list
-             '(jsx-mode c/c++/java jsx-indent-level))
+(use-package dtrt-indent
+  :config (dtrt-indent-mode 1))
+;; (add-to-list 'dtrt-indent-hook-mapping-list
+;;              '(jsx-mode c/c++/java jsx-indent-level))
 
-(setenv "GOPATH" (expand-file-name "~/code/go"))
-;; (add-to-list 'load-path "~/.emacs.d/external/auto-complete-clang-async")
-;; (require 'auto-complete-clang-async)
-;; (defun ac-cc-mode-setup ()
-;;   (setq ac-clang-complete-executable "~/.emacs.d/external/auto-complete-clang-async/clang-complete")
-;;   (setq ac-sources '(ac-source-clang-async))
-;;   (ac-clang-launch-completion-process)
-;; )
-;; (defun my-ac-config ()
-;;   (add-hook 'c-mode-common-hook 'ac-cc-mode-setup)
-;;   (add-hook 'auto-complete-mode-hook 'ac-common-setup)
-;;   (global-auto-complete-mode t))
-;; (my-ac-config)
+(use-package markdown-mode
+  :bind (:map markdown-mode-map
+              ("M-n" . nil)
+              ("M-p" . nil)
+              ))
 
 (add-to-list 'auto-mode-alist '("\\.codex\\'" . js-mode))
 (add-hook 'js-mode-hook
@@ -223,22 +244,8 @@
             (setq indent-tabs-mode nil)
             (setq tab-width 2)
             (setq js-indent-level 2)
-            ;; (modify-syntax-entry ?` " " js-mode-syntax-table)
-            ;; (smart-tabs-mode-enable)
-            ;; (smart-tabs-advice js-indent-line js-indent-level)
-            ))
+            (modify-syntax-entry ?` "-" js-mode-syntax-table)))
 ;;(setq js-mode-hook nil)
-
-
-(add-hook 'jsx-mode-hook
-          (lambda ()
-            (setq tab-width 2)))
-
-(add-hook 'julia-mode-hook
-          (lambda ()
-            (setq tab-width 4)
-            (setq julia-basic-offset 4)
-            ))
 
 (add-hook 'python-mode-hook
           (lambda ()
@@ -248,59 +255,84 @@
 ;; (setq python-mode-hook nil)
 
 (setq browse-url-browser-function 'eww-browse-url)
-(require 'skewer-mode)
 
 ;; (require 'ido)
 ;; (setq ido-enable-flex-matching t)
-(require 'projectile)
-(projectile-global-mode)
-(require 'helm-projectile)
-(helm-projectile-on)
 
-(define-key helm-map (kbd "<tab>") 'helm-execute-persistent-action)
-(define-key helm-map (kbd "C-i") 'helm-execute-persistent-action) ; make TAB work in terminal
-(define-key helm-map (kbd "C-z")  'helm-select-action)
+(use-package unfill
+  :bind ([remap fill-paragraph] . unfill-toggle))
 
-(setq shackle-rules '(("\\`\\*helm.*?\\*\\'" :regexp t :align t :ratio 0.4)))
+(use-package projectile
+  :config (projectile-mode)
+  :chords (("pb" . projectile-compile-project)))
 
-(require 'key-chord)
-(key-chord-mode 1)
+(use-package helm
+  :config
+  (recentf-mode 1)
+  (setq recentf-max-menu-items 100)
+  (setq helm-buffers-fuzzy-matching t
+        helm-recentf-fuzzy-match    t)
+
+  :bind (("M-o" . helm-M-x)
+         ("C-x C-r" . helm-recentf)
+
+         :map helm-map
+         ("<tab>" . helm-execute-persistent-action)
+         ("C-i" . helm-execute-persistent-action)
+         ("C-z" . helm-select-action))
+
+  :chords (("xf" . helm-find-files)
+           ("xb" . helm-mini)
+           ("hx" . helm-M-x)
+           ("hj" . helm-resume)))
+
+;; For some reason, these :chords blocks aren't working in some cases..
+(use-package helm-projectile
+  :config
+  (helm-projectile-on)
+  (key-chord-define-global "pf" 'helm-projectile-find-file))
+  ;; :chords (("pf" . helm-projectile-find-file)))
+
+(use-package helm-ag
+  :config (key-chord-define-global "pg" 'helm-ag-project-root))
+  ;; :chords (("pg" . helm-ag-project-root)))
+
+(use-package helm-swoop
+  ;; :bind (("C-s" . helm-swoop))
+  :config
+  (key-chord-define-global "hf" 'helm-swoop))
+  ;; :chords (("hf" . helm-swoop)))
+
+(use-package helm-ls-git
+  :bind (("C-x C-d" . helm-browse-project)))
+
+(use-package shackle
+  :config (setq shackle-rules
+                '(("\\`\\*helm.*?\\*\\'" :regexp t :align t :ratio 0.4))))
+
 (key-chord-define-global "xs" 'save-buffer)
-(key-chord-define-global "xd" 'save-buffer)
 (key-chord-define-global "xk" 'kill-this-buffer)
 (key-chord-define-global "x0" 'delete-window)
-(key-chord-define-global "xf" 'helm-find-files)
-(key-chord-define-global "xb" 'helm-buffers-list)
 
-(key-chord-define-global "pf" 'helm-projectile-find-file)
-(key-chord-define-global "pg" 'helm-ag-project-root)
-(key-chord-define-global "hx" 'helm-M-x)
-(key-chord-define-global "hf" 'helm-swoop)
-(key-chord-define-global "hj" 'helm-resume)
+;; (use-package flycheck
+;;   :chords (("fc" . flycheck-buffer)
+;;            ("fv" . flycheck-next-error)
+;;            ("fb" . flycheck-previous-error)))
 
-
-(key-chord-define-global "fc" 'flycheck-buffer)
-(key-chord-define-global "fv" 'flycheck-next-error)
-(key-chord-define-global "fb" 'flycheck-previous-error)
-
-(add-hook 'after-init-hook #'global-flycheck-mode)
+;; (add-hook 'after-init-hook #'global-flycheck-mode)
 
 ;; (require 'space-chord)
 
-(require 'multiple-cursors)
-(require 'phi-search)
-(define-key mc/keymap (kbd "C-s") 'phi-search)
-(define-key mc/keymap (kbd "C-r") 'phi-search-backward)
-(global-set-key (kbd "C->") 'mc/mark-next-like-this)
-(global-set-key (kbd "C-<") 'mc/mark-previous-like-this)
-(global-set-key (kbd "C-c C-<") 'mc/mark-all-like-this)
-(global-set-key (kbd "C-S-c C-S-c") 'mc/edit-lines)
+(use-package phi-search)
+(use-package multiple-cursors
+  :bind (("C->" . 'mc/mark-next-like-this)
+         ("C-<" . 'mc/mark-previous-like-this)
+         ("C-c C-<" . 'mc/mark-all-like-this)
+         ("C-S-c C-S-c" . 'mc/edit-lines)
+         :map mc/keymap
+         ("C-s" . phi-search)
+         ("C-r" . phi-search-backward)))
 
-(global-set-key (kbd "M-x") 'helm-M-x)
-(global-set-key (kbd "C-s") 'helm-swoop)
-(global-set-key (kbd "C-x C-d") 'helm-browse-project)
-
-(global-set-key (kbd "M-;") 'comment-or-uncomment-region-or-line)
 (global-set-key (kbd "C-'") 'switch-to-buffer)
 (global-set-key (kbd "C-;") 'other-window) ;; TODO: doesn't work in iTerm2
 (global-set-key (kbd "M-j") (lambda () (interactive) (join-line -1)))
@@ -315,16 +347,49 @@
 (global-set-key (kbd "M-C-<down>")  'shrink-window)
 (global-set-key (kbd "M-C-<up>")    'enlarge-window)
 
+(defun comment-or-uncomment-region-or-line ()
+  (interactive)
+  (let (beg end)
+    (if (region-active-p)
+        (setq beg (region-beginning) end (region-end))
+      (setq beg (line-beginning-position) end (line-end-position)))
+    (comment-or-uncomment-region beg end)
+    (next-line)))
+
+
+(flet ((comment-or-uncomment-region-or-line
+        ()
+        (interactive)
+        (let (beg end)
+          (if (region-active-p)
+              (setq beg (region-beginning) end (region-end))
+            (setq beg (line-beginning-position) end (line-end-position)))
+          (comment-or-uncomment-region beg end)
+          (forward-line))))
+  (global-set-key (kbd "M-;") 'comment-or-uncomment-region-or-line))
+
+
+(defun yank-and-indent ()
+  "Yank and then indent the newly formed region according to mode."
+  (interactive)
+  (yank)
+  (call-interactively 'indent-region))
+
+(global-set-key (kbd "C-y") 'yank-and-indent)
 
 ;; (eval-after-load "haskell-mode" (lambda () (add-hook 'haskell-mode-hook ...)))
 
-(require 'haskell-mode)
-(add-hook 'haskell-mode-hook 'turn-on-haskell-doc-mode)
-(add-hook 'haskell-mode-hook 'turn-on-haskell-indent)
-(add-to-list 'auto-mode-alist '("\\.chs\\'" . haskell-c-mode))
+(use-package rainbow-delimiters
+  :config (add-hook 'prog-mode-hook #'rainbow-delimiters-mode))
+
+;; (require 'haskell-mode)
+;; (add-hook 'haskell-mode-hook 'turn-on-haskell-doc-mode)
+;; (add-hook 'haskell-mode-hook 'turn-on-haskell-indent)
+;; (add-to-list 'auto-mode-alist '("\\.chs\\'" . haskell-c-mode))
 
 (eval-after-load "sql"
-  '(progn (sql-set-product 'postgres)))
+  '(progn (sql-set-product 'postgres)
+          (add-to-list 'sql-postgres-login-params '(port :default 54327))))
 
 (add-hook 'emacs-lisp-mode-hook
           (lambda ()
@@ -332,35 +397,154 @@
             (define-key emacs-lisp-mode-map
               "\r" 'reindent-then-newline-and-indent)))
 
-(rtags-enable-standard-keybindings)
+;; (rtags-enable-standard-keybindings)
 ;; (setq rtags-autostart-diagnostics t)
 ;; (setq rtags-completions-enabled t)
-(require 'company)
-(global-company-mode)
-(push 'company-rtags company-backends)
-(define-key c-mode-base-map (kbd "<C-tab>") (function company-complete))
 
-(require 'flycheck-rtags)
+(use-package company
+  :config
+  ;; (global-company-mode)
+  ;; (push 'company-rtags company-backends)
+  :bind (:map c-mode-base-map
+        ("<C-tab>" . company-complete)))
 
-;; (setq c-mode-common-hook nil)
+;; (require 'flycheck-rtags)
+
 (add-hook 'c-mode-common-hook
           (lambda ()
             (local-set-key (kbd "C-c o") 'ff-find-other-file)
             (setq c-basic-offset 2)
             (c-set-offset 'innamespace 0)
+            (c-set-offset 'inlambda 2)
             (setq tab-width 2)
             (setq indent-tabs-mode nil)
-
-            (flycheck-select-checker 'rtags)
-            (setq-local flycheck-highlighting-mode nil)
-            (setq-local flycheck-check-syntax-automatically nil)
-
-            (setq rtags-autostart-diagnostics t)
-            (rtags-diagnostics)
-            (setq rtags-completions-enabled t)
-            (define-key c-mode-base-map (kbd "<C-tab>") (function company-complete))
-            ;; (rtags-start-process-unless-running)
             ))
+
+;; (defun inside-class-enum-p (pos)
+;;   "Checks if POS is within the braces of a C++ \"enum class\"."
+;;   (ignore-errors
+;;     (save-excursion
+;;       (goto-char pos)
+;;       (up-list -1)
+;;       (backward-sexp 1)
+;;       (looking-back "enum[ \t]+class[ \t]+[^}]+"))))
+
+;; (defun align-enum-class (langelem)
+;;   (if (inside-class-enum-p (c-langelem-pos langelem))
+;;       0
+;;     (c-lineup-topmost-intro-cont langelem)))
+
+;; (defun align-enum-class-closing-brace (langelem)
+;;   (if (inside-class-enum-p (c-langelem-pos langelem))
+;;       '-
+;;     '+))
+
+;; (defun fix-enum-class ()
+;;   "Setup `c++-mode' to better handle \"class enum\"."
+;;   (add-to-list 'c-offsets-alist '(topmost-intro-cont . align-enum-class))
+;;   (add-to-list 'c-offsets-alist
+;;                '(statement-cont . align-enum-class-closing-brace)))
+
+;; (add-hook 'c++-mode-hook 'fix-enum-class)
+
+;; (use-package eglot
+;;   :config
+;;   (key-chord-define-global "fv" 'flymake-goto-next-error)
+;;   (key-chord-define-global "fb" 'flymake-goto-prev-error))
+
+;; (use-package flycheck
+;;   :config
+;;   (global-flycheck-mode)
+;;   (add-hook 'c-mode-common-hook
+;;             (lambda ()
+;;               ;; (setq-local flycheck-highlighting-mode nil)
+;;               ;; (flycheck-select-checker 'lsp-ui)
+;;               ;; (setq-local flycheck-check-syntax-automatically nil)
+;;               ;; (setq rtags-autostart-diagnostics t)
+;;               ;; (rtags-diagnostics)
+;;               ;; (setq rtags-completions-enabled t)
+;;               ;; (define-key c-mode-base-map (kbd "<C-tab>") (function company-complete))
+;;               ;; (rtags-start-process-unless-running)
+;;               )))
+
+
+;;   :config
+;;   )
+
+;; (use-package rtags
+;;   :config
+;;   (add-hook 'c-mode-common-hook
+;;             (lambda ()
+;;               (flycheck-select-checker 'rtags)
+;;               (setq-local flycheck-highlighting-mode nil)
+;;               (setq-local flycheck-check-syntax-automatically nil)
+;;               (setq rtags-autostart-diagnostics t)
+;;               (rtags-diagnostics)
+;;               (setq rtags-completions-enabled t)
+;;               (define-key c-mode-base-map (kbd "<C-tab>") (function company-complete))
+;;               (rtags-start-process-unless-running)
+;;               )))
+
+
+;; cquery:
+;;   brew install cquery
+;;   pip install compiledb
+;;   compiledb -n make debug
+;; see also: https://github.com/MaskRay/ccls
+;; (use-package cquery
+;;   :config
+;;   (add-hook 'c-mode-common-hook
+;;             (lambda ()
+;;               ;; (lsp-cquery-enable)
+;;               ;; (flycheck-select-checker 'lsp-ui)
+;;               ;; (setq-local flycheck-highlighting-mode nil)
+;;               ;; (setq-local flycheck-check-syntax-automatically nil)
+;;               ;; (setq rtags-autostart-diagnostics t)
+;;               ;; (rtags-diagnostics)
+;;               ;; (setq rtags-completions-enabled t)
+;;               (define-key c-mode-base-map (kbd "<C-tab>") (function company-complete))
+;;               ;; (rtags-start-process-unless-running)
+;;               )))
+
+
+;; (use-package company-lsp
+;;   :config (push 'company-lsp company-backends))
+
+;; (use-package lsp-ui
+;;   :config
+;;   (setq lsp-ui-doc-enable nil)
+;;   (setq lsp-ui-sideline-enable nil)
+;;   (setq lsp-ui-flycheck-enable t)
+;;   (add-hook 'lsp-after-open-hook (lambda () (lsp-ui-flycheck-enable 1)))
+;;   )
+
+;; (use-package yasnippet
+;;   :config (yas-global-mode 1))
+
+;; (setq cquery-executable "/Users/sbillig/local/bin/cquery")
+;; (setq cquery-extra-init-params '(:index (:comments 2) :cacheFormat "msgpack"))
+
+
+;; (setq c-mode-common-hook nil)
+;; (add-hook 'c-mode-common-hook
+;;           (lambda ()
+;;             (local-set-key (kbd "C-c o") 'ff-find-other-file)
+;;             (setq c-basic-offset 2)
+;;             (c-set-offset 'innamespace 0)
+;;             (setq tab-width 2)
+;;             (setq indent-tabs-mode nil)
+
+
+;;             ;; (flycheck-select-checker 'rtags)
+;;             (setq-local flycheck-highlighting-mode nil)
+;;             (setq-local flycheck-check-syntax-automatically nil)
+
+;;             ;; (setq rtags-autostart-diagnostics t)
+;;             ;; (rtags-diagnostics)
+;;             ;; (setq rtags-completions-enabled t)
+;;             (define-key c-mode-base-map (kbd "<C-tab>") (function company-complete))
+;;             ;; (rtags-start-process-unless-running)
+;;             ))
 
 (add-to-list 'auto-mode-alist '("\\.h\\'" . c++-mode))
 
@@ -369,12 +553,6 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(ansi-color-faces-vector
-   [default bold shadow italic underline bold bold-italic bold])
- '(ansi-color-names-vector
-   ["#242424" "#e5786d" "#95e454" "#cae682" "#8ac6f2" "#333366" "#ccaa8f" "#f6f3e8"])
- '(background-color "#fcf4dc")
- '(background-mode light)
  '(company-auto-complete-chars nil)
  '(compilation-message-face (quote default))
  '(cua-global-mark-cursor-color "#2aa198")
@@ -382,18 +560,11 @@
  '(cua-overwrite-cursor-color "#b58900")
  '(cua-read-only-cursor-color "#859900")
  '(cursor-color "#52676f")
- '(custom-enabled-themes (quote (lush)))
- '(custom-safe-themes
-   (quote
-    ("8db4b03b9ae654d4a57804286eb3e332725c84d7cdab38463cb6b97d5762ad26" "ab0950f92dc5e6b667276888cb0cdbc35fd1c16f667170a62c15bd3ed5ae5c5a" "8aebf25556399b58091e533e455dd50a6a9cba958cc4ebb0aab175863c25b9a4" "756ec68798410a2e705dd719c7328af9ecbb782c94130d489b6b3109841833eb" "3c83b3676d796422704082049fc38b6966bcad960f896669dfc21a7a37a748fa" "0820d191ae80dcadc1802b3499f84c07a09803f2cb90b343678bdb03d225b26b" "27b7d32fa83dc83ce3034e2a1fe31174c9abff70c1121e4a42b2ce08cc791aec" "4aee8551b53a43a883cb0b7f3255d6859d766b6c5e14bcb01bed572fcbef4328" "06f0b439b62164c6f8f84fdda32b62fb50b6d00e8b01c2208e55543a6337433a" "bb08c73af94ee74453c90422485b29e5643b73b05e8de029a6909af6a3fb3f58" "4cf3221feff536e2b3385209e9b9dc4c2e0818a69a1cdb4b522756bcdf4e00a4" "1e7e097ec8cb1f8c3a912d7e1e0331caeed49fef6cff220be63bd2a6ba4cc365" "1b8d67b43ff1723960eb5e0cba512a2c7a2ad544ddb2533a90101fd1852b426e" "628278136f88aa1a151bb2d6c8a86bf2b7631fbea5f0f76cba2a0079cd910f7d" "6a37be365d1d95fad2f4d185e51928c789ef7a4ccf17e7ca13ad63a8bf5b922f" default)))
  '(dtrt-indent-min-quality 40.0)
  '(dtrt-indent-mode t nil (dtrt-indent))
  '(dtrt-indent-verbosity 2)
  '(fci-rule-color "#282a2e")
- '(flycheck-check-syntax-automatically (quote (save mode-enabled)))
- '(flycheck-clang-include-path
-   (quote
-    ("/Users/seanbillig/local/include" "/Users/seanbillig/local/include/libxml2" "/Users/seanbillig/code/modeler_new/external" "/Users/seanbillig/code/core/dex_ka/external" "/Users/seanbillig/code/core/dex_ka/src" "/Users/seanbillig/code/core/dex_ka/build/debug" "/Users/seanbillig/code/core/dex_ka/build/msgpack/include" "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include")))
+ '(flymake-gui-warnings-enabled nil)
  '(foreground-color "#52676f")
  '(helm-ag-insert-at-point (quote symbol))
  '(highlight-changes-colors (quote ("#d33682" "#6c71c4")))
@@ -421,29 +592,17 @@
     ("#002b36" "#002b36" "#002b36" "#002b36" "#002b36" "#002b36" "#002b36" "#002b36")))
  '(ido-enable-flex-matching t)
  '(js-indent-level 2)
- '(js2-strict-inconsistent-return-warning nil)
- '(js2-strict-missing-semi-warning nil)
- '(js3-auto-indent-p t)
- '(js3-consistent-level-indent-inner-bracket t)
- '(js3-curly-indent-offset 0)
- '(js3-enter-indents-newline t)
- '(js3-global-externs (quote ("require" "console")))
- '(js3-idle-timer-delay 0.4)
- '(js3-indent-dots t)
- '(js3-indent-on-enter-key t)
- '(js3-lazy-dots t)
- '(js3-missing-semi-one-line-override t)
- '(js3-pretty-vars nil)
- '(js3-strict-trailing-comma-warning nil)
- '(jsx-indent-level 2)
  '(magit-diff-use-overlays nil)
+ '(markdown-edit-code-block-default-mode nil)
+ '(markdown-fontify-code-blocks-natively t)
+ '(markdown-gfm-additional-languages nil)
  '(mc/always-run-for-all t)
  '(nrepl-message-colors
    (quote
     ("#dc322f" "#cb4b16" "#b58900" "#546E00" "#B4C342" "#00629D" "#2aa198" "#d33682" "#6c71c4")))
  '(package-selected-packages
    (quote
-    (flycheck-swift3 swift-mode tide rudel toml-mode warm-night-theme phi-search rtags zencoding-mode yaml-mode xml+ window-numbering websocket web-mode undo-tree terraform-mode switch-window string-inflection solarized-theme smartparens smart-tabs-mode smart-mode-line slime skewer-mode shackle scss-mode request rainbow-mode ppd-sr-speedbar powerline php-mode opencl-mode oauth2 nginx-mode multiple-cursors multi-web-mode markdown-mode magit lush-theme llvm-mode keyfreq key-chord jsx-mode json-mode irony helm-swoop helm-projectile helm-make helm-ls-git helm-ag haskell-mode graphene-meta-theme google-this google go-mode go-autocomplete flycheck feature-mode f expand-region exec-path-from-shell emojify dtrt-indent disaster company column-enforce-mode color-theme-solarized color-theme-sanityinc-tomorrow color-theme-sanityinc-solarized cmake-project cmake-ide cmake-font-lock circe buffer-move browse-kill-ring autopair auto-complete-clang-async alert ag ack-and-a-half ace-jump-mode)))
+    (markdown-mode json-mode string-inflection zencoding-mode yasnippet yaml-mode window-numbering which-key web-mode volatile-highlights use-package-chords unfill undo-tree spacemacs-theme smartparens smart-tabs-mode smart-mode-line skewer-mode shackle rtags rainbow-mode rainbow-delimiters phi-search multiple-cursors move-text magit lush-theme lsp-ui keyfreq helm-xref helm-swoop helm-projectile helm-make helm-ls-git helm-flymake helm-ag haskell-mode goto-chg git-timemachine expand-region exec-path-from-shell eglot dtrt-indent doom-themes dashboard darktooth-theme cquery company-lsp column-enforce-mode buffer-move browse-kill-ring beacon badger-theme avy autopair auto-package-update ample-theme ace-jump-mode)))
  '(pos-tip-background-color "#073642")
  '(pos-tip-foreground-color "#93a1a1")
  '(python-indent-offset 2)
@@ -451,48 +610,7 @@
    (quote
     (" hl-p" " Projectile[dex]" " Undo-Tree" " AC" " pair")))
  '(shackle-mode t)
- '(smartrep-mode-line-active-bg (solarized-color-blend "#859900" "#073642" 0.2))
- '(sml/theme (quote respectful))
- '(term-default-bg-color "#002b36")
- '(term-default-fg-color "#839496")
- '(terraform-indent-level 2)
- '(vc-annotate-background nil)
- '(vc-annotate-background-mode nil)
- '(vc-annotate-color-map
-   (quote
-    ((20 . "#cc6666")
-     (40 . "#de935f")
-     (60 . "#f0c674")
-     (80 . "#b5bd68")
-     (100 . "#8abeb7")
-     (120 . "#81a2be")
-     (140 . "#b294bb")
-     (160 . "#cc6666")
-     (180 . "#de935f")
-     (200 . "#f0c674")
-     (220 . "#b5bd68")
-     (240 . "#8abeb7")
-     (260 . "#81a2be")
-     (280 . "#b294bb")
-     (300 . "#cc6666")
-     (320 . "#de935f")
-     (340 . "#f0c674")
-     (360 . "#b5bd68"))))
- '(vc-annotate-very-old-color nil)
- '(weechat-color-list
-   (quote
-    (unspecified "#002b36" "#073642" "#990A1B" "#dc322f" "#546E00" "#859900" "#7B6000" "#b58900" "#00629D" "#268bd2" "#93115C" "#d33682" "#00736F" "#2aa198" "#839496" "#657b83")))
- '(xterm-color-names
-   ["#073642" "#dc322f" "#859900" "#b58900" "#268bd2" "#d33682" "#2aa198" "#eee8d5"])
- '(xterm-color-names-bright
-   ["#002b36" "#cb4b16" "#586e75" "#657b83" "#839496" "#6c71c4" "#93a1a1" "#fdf6e3"]))
+ '(smartrep-mode-line-active-bg (solarized-color-blend "#859900" "#073642" 0.2)))
 
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(js2-warning ((t (:underline "orange"))))
- '(js3-external-variable-face ((t (:foreground "SlateBlue1" :underline t)))))
 (put 'downcase-region 'disabled nil)
 (put 'upcase-region 'disabled nil)
