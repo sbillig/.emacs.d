@@ -3,21 +3,29 @@
 (global-set-key (kbd "C-s-f") 'toggle-frame-fullscreen)
 (setq-default custom-file (expand-file-name ".custom.el" user-emacs-directory))
 (setq-default indent-tabs-mode nil)
+(setq ring-bell-function 'ignore)
+
+(set-face-attribute 'default nil :height 120)
+
 ;; (when (file-exists-p custom-file)
 ;;   (load custom-file))
 
 (setq initial-scratch-message nil)
 (setq inhibit-startup-screen t)
 
-(setq
- font-lock-support-mode 'jit-lock-mode
- jit-lock-chunk-size   5000
- jit-lock-stealth-time 0.1
- jit-lock-defer-time   0.1
- jit-lock-context-time 0.1)
+;; (setq
+;;  font-lock-support-mode 'jit-lock-mode
+;;  jit-lock-chunk-size   5000
+;;  jit-lock-stealth-time 0.1
+;;  jit-lock-defer-time   0.1
+;;  jit-lock-context-time 0.1)
 
 (setq gc-cons-threshold 100000000) ;;; default 800,000
 (setq read-process-output-max (* 1024 1024)) ;; 1mb (for lsp-mode)
+
+(setq-default fill-column 80)
+(add-hook 'markdown-mode-hook #'auto-fill-mode)
+(add-hook 'markdown-mode-hook #'flyspell-mode)
 
 ;;; Packages
 (package-initialize)
@@ -58,6 +66,7 @@
   ;; (dashboard-setup-startup-hook)
 )
 
+(use-package free-keys)
 (use-package which-key
   :config (which-key-mode))
 
@@ -158,12 +167,14 @@
 
 
 (use-package magit)
+(use-package forge :after magit)
 (use-package git-timemachine)
+(use-package github-review)
 
 ;; http://peach-melpa.org/ -- theme gallery
-(use-package darktooth-theme :config (load-theme 'darktooth t))
-;; (use-package paper-theme :config (load-theme 'paper t))
-(global-hl-line-mode +1)
+(use-package gruvbox-theme :config (load-theme 'gruvbox-dark-medium t))
+;; (use-package gruvbox-theme :config (load-theme 'gruvbox-light-soft t))
+;; (global-hl-line-mode +1)
 
 (use-package smart-mode-line
   :config (setq sml/no-confirm-load-theme t)
@@ -183,7 +194,10 @@
 
 ;; C-x u
 (use-package undo-tree
-  :config (global-undo-tree-mode 1))
+  :config
+  (global-undo-tree-mode 1)
+  (setq undo-tree-history-directory-alist '(("." . "~/.emacs.d/undo")))
+  )
 
 (use-package volatile-highlights
   :config
@@ -308,9 +322,22 @@
   (key-chord-define-global "pf" 'helm-projectile-find-file))
   ;; :chords (("pf" . helm-projectile-find-file)))
 
+;; C-c s d
+(use-package rg
+  :config
+  (rg-enable-default-bindings))
+
+(use-package helm-rg
+  ;; :config (key-chord-define-global "pg" 'helm-rg)
+)
+
 (use-package helm-ag
-  :config (key-chord-define-global "pg" 'helm-ag-project-root))
-  ;; :chords (("pg" . helm-ag-project-root)))
+  ;; :custom
+  ;; (helm-ag-base-command "rg --no-heading")
+  ;; (helm-ag-success-exit-status '(0 2))
+  ;;  :config (key-chord-define-global "pg" 'helm-ag-project-root))
+  :chords (("pg" . helm-ag-project-root))
+  )
 
 (use-package helm-swoop
   ;; :bind (("C-s" . helm-swoop))
@@ -338,7 +365,7 @@
 
 ;; (require 'space-chord)
 
-(use-package org-roam)
+; (use-package org-roam)
 
 (use-package phi-search)
 (use-package multiple-cursors
@@ -347,6 +374,7 @@
          ("C-c C-<" . 'mc/mark-all-like-this)
          ("C-S-c C-S-c" . 'mc/edit-lines)
          :map mc/keymap
+         ("<return>" . nil)
          ("C-s" . phi-search)
          ("C-r" . phi-search-backward)))
 
@@ -410,16 +438,85 @@
   (setq indent-tabs-mode nil)
   )
 
-(use-package nim-mode)
+;; (use-package rustic
+;;   :ensure
+;;   :bind (:map rustic-mode-map
+;;               ; ("M-j" . lsp-ui-imenu)
+;;               ("M-?" . lsp-find-references)
+;;               ("C-c C-c l" . flycheck-list-errors)
+;;               ("C-c C-c a" . lsp-execute-code-action)
+;;               ("C-c C-c r" . lsp-rename)
+;;               ("C-c C-c q" . lsp-workspace-restart)
+;;               ("C-c C-c Q" . lsp-workspace-shutdown)
+;;               ("C-c C-c s" . lsp-rust-analyzer-status))
+;;   :config
+
+;;   ;; uncomment for less flashiness
+;;   ;; (setq lsp-eldoc-hook nil)
+;;   ;; (setq lsp-enable-symbol-highlighting nil)
+;;   ;; (setq lsp-signature-auto-activate nil)
+
+;;   (setq rustic-format-on-save nil)
+;;   (setq rustic-lsp-format nil)
+;;   ;; (add-hook 'rustic-mode-hook 'rk/rustic-mode-hook)
+;;   )
+
+;; (defun rk/rustic-mode-hook ()
+;;   ;; so that run C-c C-c C-r works without having to confirm
+;;   (setq-local buffer-save-without-query t))
+
 
 (use-package lsp-mode
+  :init (setq lsp-keymap-prefix "C-M-g")
   :hook ( ;(rust-mode . lsp)
-         (lsp-mode . lsp-enable-which-key-integration))
+         (lsp-mode . (lambda ()
+                       (let ((lsp-keymap-prefix "C-M-g"))
+                         (lsp-enable-which-key-integration)
+
+                         )))
+         )
   :commands lsp
   :config
-;  (setq lsp-completion-provider :capf)
-  (setq lsp-rust-server 'rust-analyzer))
-(use-package lsp-ui :commands lsp-ui-mode)
+  (setq lsp-response-timeout 30)
+  (setq lsp-enable-symbol-highlighting nil)
+  (setq lsp-lens-enable nil)
+  (setq lsp-eldoc-hook nil)
+  (setq lsp-signature-auto-activate nil)
+  (setq lsp-headerline-breadcrumb-enable t)
+  (setq lsp-headerline-breadcrumb-segments '(symbols))
+  (setq lsp-ui-doc-enable nil)
+  (setq lsp-ui-sideline-enable nil)
+  (setq lsp-modeline-code-actions-enable nil)
+
+
+                                        ; (setq lsp-completion-provider :capf)
+  (setq lsp-rust-server 'rust-analyzer)
+  (setq lsp-enable-on-type-formatting nil)
+  (push "[/\\\\][^/\\\\]*\\.\\(snap\\|md\\|svg\\)$" lsp-file-watch-ignored-files)
+                                        ; :custom
+                                        ; (lsp-rust-analyzer-cargo-watch-command "clippy")
+                                        ; (lsp-eldoc-render-all nil)
+                                        ; (lsp-idle-delay 0.6)
+                                        ; (lsp-rust-analyzer-server-display-inlay-hints t)
+  ;; (add-hook 'lsp-mode-hook 'lsp-ui-mode)
+  :bind-keymap ("C-M-g" . lsp-command-map)
+  )
+
+
+
+(use-package rust-playground)
+(use-package cargo
+  :custom
+  (cargo-process--command-clippy "clippy --workspace --all-targets")
+  )
+(use-package nim-mode)
+
+(use-package typescript-mode)
+(use-package tide
+  :after (typescript-mode company flycheck)
+  :hook ((typescript-mode . tide-setup)
+         (typescript-mode . tide-hl-identifier-mode)
+         (before-save . tide-format-before-save)))
 
 (eval-after-load "sql"
   '(progn (sql-set-product 'postgres)
@@ -438,12 +535,30 @@
 ;;   (key-chord-define-global "fv" 'flymake-goto-next-error)
 ;;   (key-chord-define-global "fb" 'flymake-goto-prev-error))
 
-;; (use-package yasnippet
-;;   :config (yas-global-mode 1))
-
+(use-package yasnippet
+  :config (yas-global-mode 1))
+(use-package yasnippet-snippets)
 
 (add-to-list 'auto-mode-alist '("\\.h\\'" . c++-mode))
 
-
 (put 'downcase-region 'disabled nil)
 (put 'upcase-region 'disabled nil)
+
+(define-generic-mode 'fe-mode
+  ;; comments
+  '("//")
+  ;; keywords
+  '("fn" "return" "pub" "let" "if" "else")
+  '(("=" . 'font-lock-negation-char-face)
+    ("and" . 'font-lock-builtin-face)
+    ("u256" . 'font-lock-type-face)
+    ("address" . 'font-lock-type-face)
+    ("bool" . 'font-lock-type-face)
+    ("true" . 'font-lock-constant-face)
+    ("false" . 'font-lock-constant-face)
+    ("unsafe" . 'font-lock-warning-face)
+    )
+  '("\\.fe$")
+  ;; other functions to call
+  nil
+  "fe fi fo fum")
